@@ -16,8 +16,8 @@ pipeline {
 
         stage('Docker Build') {
     steps {
-        sh 'docker build --no-cache -t employee-management_backend:latest ./backend'
-        sh 'docker build --no-cache -t employee-management_frontend:latest ./frontend'
+        sh 'docker build  -t employee-management_backend:latest ./backend'
+        sh 'docker build -t employee-management_frontend:latest ./frontend'
     }
 }
 
