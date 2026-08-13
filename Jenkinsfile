@@ -15,11 +15,11 @@ pipeline {
         }
 
         stage('Docker Build') {
-            steps {
-                sh 'docker build -t employee-management_backend:latest ./backend'
-                sh 'docker build -t employee-management_frontend:latest ./frontend'
-            }
-        }
+    steps {
+        sh 'docker build --no-cache -t employee-management_backend:latest ./backend'
+        sh 'docker build --no-cache -t employee-management_frontend:latest ./frontend'
+    }
+}
 
         stage('Docker Hub Login') {
             steps {
@@ -51,17 +51,15 @@ pipeline {
             }
         }
 
-        stage('Push Images to Docker Hub') {
-            steps {
-                sh '''
-                    docker push $DOCKERHUB_USER/employee-management-backend:latest
+       stage('Push Images to Docker Hub') {
+    steps {
+        sh '''
+            docker push $DOCKERHUB_USER/employee-management-backend:latest
 
-                   docker push --platform linux/amd64 \
-            $DOCKERHUB_USER/employee-management-frontend:latest
-        
-                '''
-            }
-        }
+            docker push $DOCKERHUB_USER/employee-management-frontend:latest
+        '''
+    }
+}
 
         stage('Deploy') {
             steps {
