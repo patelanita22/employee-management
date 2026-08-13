@@ -1,0 +1,64 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-app
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: employee_db
+
+    ports:
+      - "3307:3306"
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    networks:
+      - employee-network
+
+
+  backend:
+    image: employee-management_backend:latest
+    container_name: back-app
+    restart: unless-stopped
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      - mysql
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/employee_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+    networks:
+      - employee-network
+
+
+  frontend:
+    image: employee-management_frontend:latest
+    container_name: front-app
+    restart: unless-stopped
+
+    ports:
+      - "5173:5173"
+
+    depends_on:
+      - backend
+
+    networks:
+      - employee-network
+
+
+volumes:
+  mysql-data:
+
+
+networks:
+  employee-network:
+    name: employee-network
+    driver: bridge
