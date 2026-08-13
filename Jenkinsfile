@@ -56,7 +56,9 @@ pipeline {
                 sh '''
                     docker push $DOCKERHUB_USER/employee-management-backend:latest
 
-                    docker push $DOCKERHUB_USER/employee-management-frontend:latest
+                   docker push --platform linux/amd64 \
+            $DOCKERHUB_USER/employee-management-frontend:latest
+        
                 '''
             }
         }
