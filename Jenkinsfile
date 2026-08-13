@@ -38,6 +38,14 @@ pipeline {
                 }
             }
         }
+        stage('Clean Docker Hub Manifest') {
+    steps {
+        sh '''
+            docker image rm anitaraut/employee-management-backend:latest || true
+            docker image rm anitaraut/employee-management-frontend:latest || true
+        '''
+    }
+}
 
         stage('Tag Images') {
             steps {
