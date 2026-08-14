@@ -32,8 +32,8 @@ pipeline {
             
             echo "Removing old containers..."
 
-            docker rm ${BACKEND_CONTAINER} || true
-            docker rm ${FRONTEND_CONTAINER} || true
+            docker rm -f ${BACKEND_CONTAINER} || true
+            docker rm -f ${FRONTEND_CONTAINER} || true
 
              echo "Cleaning stopped containers..."
 
