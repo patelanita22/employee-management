@@ -26,7 +26,7 @@ services:
   backend:
     build:
       context: ./backend
-    image: employee-management_backend:latest
+    image: employee-management_backend:v2
     container_name: back-app
     restart: unless-stopped
 
@@ -47,7 +47,7 @@ services:
   frontend:
    build:
     context: ./frontend
-   image: employee-management_frontend:latest
+   image: employee-management_frontend:v2
    container_name: front-app
    restart: unless-stopped
 
