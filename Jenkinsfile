@@ -11,6 +11,8 @@ pipeline {
 
         BACKEND_CONTAINER = 'employee-backend'
         FRONTEND_CONTAINER = 'employee-frontend'
+
+        DOCKER_NETWORK = 'employee-network'
         
     }
 
@@ -41,7 +43,7 @@ pipeline {
 
              echo "Cleaning unused images..."
 
-            docker image prune -a -f || true
+            docker image prune -f || true
         """
     }
 }
@@ -124,6 +126,7 @@ pipeline {
 
                     docker run -d \
                     --name ${FRONTEND_CONTAINER} \
+                    --network ${DOCKER_NETWORK} \
                     -p 5173:5173 \
                     ${DOCKERHUB_USER}/${FRONTEND_IMAGE}:${IMAGE_TAG}
                 """
@@ -137,6 +140,7 @@ pipeline {
 
                     docker run -d \
                     --name ${BACKEND_CONTAINER} \
+                    --network ${DOCKER_NETWORK} \
                     -p 8081:8080 \
                     ${DOCKERHUB_USER}/${BACKEND_IMAGE}:${IMAGE_TAG}
                 """
