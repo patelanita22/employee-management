@@ -1,5 +1,4 @@
 services:
-
   mysql:
     image: mysql:8.0
     container_name: mysql-app
@@ -24,8 +23,9 @@ services:
       timeout: 5s
       retries: 5
 
-
   backend:
+    build:
+      context: ./backend
     image: employee-management_backend:latest
     container_name: back-app
     restart: unless-stopped
@@ -34,7 +34,8 @@ services:
       - "8080:8080"
 
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/employee_db
@@ -43,26 +44,24 @@ services:
 
     networks:
       - employee-network
-
-
   frontend:
-    image: employee-management_frontend:latest
-    container_name: front-app
-    restart: unless-stopped
+   build:
+    context: ./frontend
+   image: employee-management_frontend:latest
+   container_name: front-app
+   restart: unless-stopped
 
-    ports:
-      - "5173:5173"
+   ports:
+    - "5173:5173"
 
-    depends_on:
-      - backend
+   depends_on:
+    - backend
 
-    networks:
-      - employee-network
-
+   networks:
+    - employee-network
 
 volumes:
   mysql-data:
-
 
 networks:
   employee-network:
