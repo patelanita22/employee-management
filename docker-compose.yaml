@@ -18,6 +18,12 @@ services:
     networks:
       - employee-network
 
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
   backend:
     image: employee-management_backend:latest
