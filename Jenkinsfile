@@ -4,6 +4,14 @@ pipeline {
 
     environment {
         DOCKERHUB_USER = 'anitaraut'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+
+        BACKEND_IMAGE = 'employee-backend-management'
+        FRONTEND_IMAGE = 'employee-frontend-management'
+
+        BACKEND_CONTAINER = 'employee-backend'
+        FRONTEND_CONTAINER = 'employee-frontend'
+        
     }
 
     stages {
@@ -14,10 +22,35 @@ pipeline {
             }
         }
 
+ stage('Clean Old Deployment') {
+    steps {
+        sh """
+            echo "Stopping old containers..."
+
+            docker stop ${BACKEND_CONTAINER} || true
+            docker stop ${FRONTEND_CONTAINER} || true
+            
+            echo "Removing old containers..."
+
+            docker rm ${BACKEND_CONTAINER} || true
+            docker rm ${FRONTEND_CONTAINER} || true
+
+             echo "Cleaning stopped containers..."
+
+            docker container prune -f || true
+
+             echo "Cleaning unused images..."
+
+            docker image prune -a -f || true
+        """
+    }
+}
+       
         stage('Docker Build') {
     steps {
-        sh 'docker build  -t employee-management_backend:latest ./backend'
-        sh 'docker build --no-cache -t employee-management_frontend:latest ./frontend'
+        sh "docker build  -t ${BACKEND_IMAGE}:${IMAGE_TAG} ./backend"
+ 
+        sh "docker build  -t ${FRONTEND_IMAGE}:${IMAGE_TAG} ./frontend"
     }
 }
 
@@ -41,49 +74,103 @@ pipeline {
        
         stage('Tag Images') {
             steps {
-                sh '''
-                    docker tag employee-management_backend:latest \
-                    $DOCKERHUB_USER/employee-management-backend:latest
+                sh """
+                    docker tag \
+                    ${BACKEND_IMAGE}:${IMAGE_TAG} \
+                    $DOCKERHUB_USER/${BACKEND_IMAGE}:${IMAGE_TAG}
 
-                    docker tag employee-management_frontend:latest \
-                    $DOCKERHUB_USER/employee-management-frontend:latest
-                '''
-            }
+                    docker tag \
+                    ${FRONTEND_IMAGE}:${IMAGE_TAG} \
+                    $DOCKERHUB_USER/${FRONTEND_IMAGE}:${IMAGE_TAG}
+
+                    """
+                 }
         }
 
        stage('Push Images to Docker Hub') {
     steps {
-        sh '''
-            docker push $DOCKERHUB_USER/employee-management-backend:latest
+        sh """
+            docker push \
+            $DOCKERHUB_USER/${BACKEND_IMAGE}:${IMAGE_TAG}
 
-            docker push $DOCKERHUB_USER/employee-management-frontend:latest
-        '''
+            docker push \
+            $DOCKERHUB_USER/${FRONTEND_IMAGE}:${IMAGE_TAG}
+        """
     }
 }
 
-        stage('Deploy') {
+ stage('Pull Images') {
             steps {
-              
-              sh 'docker-compose down'       
-              sh 'docker-compose up -d --build'
+                sh """
+                    echo "===== Pulling Backend Image ====="
+
+                    docker pull \
+                    ${DOCKERHUB_USER}/${BACKEND_IMAGE}:${IMAGE_TAG}
+
+                    echo "===== Pulling Frontend Image ====="
+
+                    docker pull \
+                    ${DOCKERHUB_USER}/${FRONTEND_IMAGE}:${IMAGE_TAG}
+                """
+            }
+        }
+        
+        
+
+        stage('Deploy Frontend') {
+            steps {
+                sh """
+                    echo "===== Starting Frontend Container ====="
+
+                    docker run -d \
+                    --name ${FRONTEND_CONTAINER} \
+                    -p 5173:5173 \
+                    ${DOCKERHUB_USER}/${FRONTEND_IMAGE}:${IMAGE_TAG}
+                """
             }
         }
 
-        stage('Verify') {
+        stage('Deploy backend') {
             steps {
-                sh 'docker-compose ps'
+                sh """
+                    echo "===== Starting backend Container ====="
+
+                    docker run -d \
+                    --name ${BACKEND_CONTAINER} \
+                    -p 8081:8080 \
+                    ${DOCKERHUB_USER}/${BACKEND_IMAGE}:${IMAGE_TAG}
+                """
             }
         }
+
+
+stage('Verify') {
+    steps {
+        sh """
+            echo "===== Docker Images ====="
+            docker images
+
+            echo "===== Running Containers ====="
+            docker ps
+        """
+    }
+}
+
     }
 
-    post {
+post {
+        always {
+            sh 'docker logout'
+        }
+
 
         success {
             echo 'CI/CD Pipeline completed successfully!'
         }
 
-        failure {
+       failure {
             echo 'CI/CD Pipeline failed!'
         }
     }
+
 }
