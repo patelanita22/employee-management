@@ -179,7 +179,7 @@ post {
         }
 
        failure {
-            echo 'CI/CD Pipeline failed!'
+            echo 'CI/CD Pipeline failed at the end!'
         }
     }
 
