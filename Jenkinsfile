@@ -44,6 +44,12 @@ pipeline {
              echo "Cleaning unused images..."
 
             docker image prune -f || true
+             echo "===== Checking Docker Network ====="
+
+                    docker network inspect ${DOCKER_NETWORK} >/dev/null 2>&1 || \
+                    docker network create ${DOCKER_NETWORK}
+
+                    echo "Docker network is ready."
         """
     }
 }
