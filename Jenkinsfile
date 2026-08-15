@@ -23,7 +23,7 @@ pipeline {
                 checkout scm
             }
         }
-
+/*
  stage('Clean Old Deployment') {
     steps {
         sh """
@@ -47,7 +47,7 @@ pipeline {
         """
     }
 }
-       
+      */ 
         stage('Docker Build') {
     steps {
         sh "docker build  -t ${BACKEND_IMAGE}:${IMAGE_TAG} ./backend"
