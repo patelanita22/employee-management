@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import "./App.css";
 
-const API_URL = "http://localhost:8080/employees";
+const API_URL = "http://localhost:8081/employees";
 
 const EMPTY_EMPLOYEE = {
   name: "",
