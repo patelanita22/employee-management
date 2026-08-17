@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: employee-frontend
+  namespace: employee-management
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: employee-frontend
+
+  template:
+    metadata:
+      labels:
+        app: employee-frontend
+
+    spec:
+      containers:
+        - name: frontend
+          image: anitaraut/employee-frontend-management:40
+          ports:
+            - containerPort: 5173
+
+            

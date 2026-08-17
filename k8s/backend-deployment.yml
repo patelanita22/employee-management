@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: employee-backend
+  namespace: employee-management
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: employee-backend
+
+  template:
+    metadata:
+      labels:
+        app: employee-backend
+
+    spec:
+      containers:
+        - name: backend
+          image: anitaraut/employee-backend-management:41
+          ports:
+            - containerPort: 8080
